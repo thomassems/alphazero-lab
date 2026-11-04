@@ -1,4 +1,5 @@
 import random
+import copy
 
 
 class Board:
@@ -45,6 +46,18 @@ class Board:
             return "game ended in a draw"
 
         return None
+
+    def copy(self):
+        newboard = Board()
+        newboard.turn = self.turn
+        newboard.status = self.status
+        newboard.state = copy.deepcopy(self.state)
+        return newboard
+
+    def undo_move(self, r, c):
+        self.turn -= 1
+        self.status = None
+        self.state[r][c] = '-'
 
 def rand_player(board):
     moves = [
