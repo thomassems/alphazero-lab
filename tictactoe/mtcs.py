@@ -7,6 +7,7 @@ class Node:
         self.move = move
         self.visits = 0
         self.wins = 0
+        self.losses = 0
         self.children = set()
         self.untried_moves = set(
         (r, c)
@@ -67,20 +68,24 @@ def mtcs(root, n_iters):
         while cur:
             cur.visits += 1
             if cur.move is not None:
-                cur.wins += reward(cur, res)
+                wins = reward(cur, res)
+                if wins == 0: cur.losses += 1
+                cur.wins += wins
             cur = cur.parent
 
 
 if __name__ == '__main__':
     root = Node(None, None, Board())
-    mtcs(root, 1000)
+    mtcs(root, 1000000)
 
     # Show what MCTS learned about each first move, best (most-visited) first.
     print(f"root visits: {root.visits}\n")
-    print(f"{'move':<8}{'visits':>8}{'wins':>8}{'win%':>8}")
+    print(f"{'move':<8}{'visits':>8}{'wins':>8}{'win%':>8}{'loss%':>8}")
     for child in sorted(root.children, key=lambda c: c.visits, reverse=True):
-        win_rate = child.wins / child.visits
-        print(f"{str(child.move):<8}{child.visits:>8}{child.wins:>8.1f}{win_rate:>8.2f}")
+        win_rate = child.wins / child.visits * 100
+        loss_rate = child.losses / child.visits * 100
+        
+        print(f"{str(child.move):<8}{child.visits:>8}{child.wins:>8.1f}{win_rate:>8.2f}{loss_rate:>8.2f}")
 
     best = max(root.children, key=lambda c: c.visits)
     print(f"\nbest move: {best.move}")
